@@ -24,9 +24,13 @@ def get_stock_data(symbol="000001", start_date=None, end_date=None, days=365*5):
         if not start_date:
             start_date = (datetime.now() - timedelta(days=days)).strftime("%Y%m%d")
         
+        # 转换日期格式为YYYY-MM-DD，因为ak.stock_zh_a_hist可能期望这种格式
+        start_date_formatted = datetime.strptime(start_date, "%Y%m%d").strftime("%Y-%m-%d")
+        end_date_formatted = datetime.strptime(end_date, "%Y%m%d").strftime("%Y-%m-%d")
+        
         # 使用akshare获取A股日线数据
-        print(f"正在获取股票数据: {symbol}, 时间范围: {start_date} 到 {end_date}")
-        data = ak.stock_zh_a_hist(symbol=symbol, start_date=start_date, end_date=end_date, adjust="qfq")
+        print(f"正在获取股票数据: {symbol}, 时间范围: {start_date} ({start_date_formatted}) 到 {end_date} ({end_date_formatted})")
+        data = ak.stock_zh_a_hist(symbol=symbol, start_date=start_date_formatted, end_date=end_date_formatted, adjust="qfq")
         
         # 转换日期格式并设置为索引
         data['日期'] = pd.to_datetime(data['日期'])

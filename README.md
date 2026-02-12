@@ -34,8 +34,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/Eazinchen/quant.git
+cd quant
 ```
 
 ### 2. 安装前端依赖
@@ -120,6 +120,10 @@ npm run dev
   - `end_date` (结束日期，格式为"YYYYMMDD")
 - **返回**: 回测结果，包含绩效指标和Base64编码的图表
 
+### 回测结果示例
+
+![回测结果示例](backtest_result.png)
+
 ## 注意事项
 
 1. 后端使用akshare获取A股数据，需要网络连接。
@@ -127,7 +131,3 @@ npm run dev
 3. 回测结果仅供参考，不构成投资建议。
 4. 图表生成可能需要一定时间，特别是在处理大量数据时。
 5. 系统已修复中文显示问题，图表中的中文文本会正确显示。
-
-## 许可证
-
-MIT

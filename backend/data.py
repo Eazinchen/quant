@@ -45,34 +45,54 @@ def get_stock_data(symbol="000001", start_date=None, end_date=None, days=365*5):
         print(f"获取股票数据失败: {e}")
         # 返回模拟数据
         print("返回模拟数据")
-        return generate_simulated_data(days=days)
+        # 计算模拟数据的天数
+        if start_date and end_date:
+            # 如果指定了开始和结束日期，计算实际天数
+            start = datetime.strptime(start_date, "%Y%m%d")
+            end = datetime.strptime(end_date, "%Y%m%d")
+            sim_days = (end - start).days
+            if sim_days < 1:
+                sim_days = 365  # 至少生成1年的数据
+            return generate_simulated_data(days=sim_days, start_date=start_date, end_date=end_date)
+        else:
+            return generate_simulated_data(days=days)
 
 
-def generate_simulated_data(days=365*5):
+def generate_simulated_data(days=365*5, start_date=None, end_date=None):
     """
     生成模拟股票数据
     
     参数:
     days: int, 数据天数，默认5年
+    start_date: str, 开始日期，格式：YYYYMMDD
+    end_date: str, 结束日期，格式：YYYYMMDD
     
     返回:
     pandas DataFrame, 包含模拟的股票价格数据
     """
     # 生成日期范围
-    dates = pd.date_range(end=datetime.now(), periods=days, freq='B')
+    if start_date and end_date:
+        # 如果指定了开始和结束日期，使用这些日期
+        start = datetime.strptime(start_date, "%Y%m%d")
+        end = datetime.strptime(end_date, "%Y%m%d")
+        dates = pd.date_range(start=start, end=end, freq='B')
+    else:
+        # 否则使用默认的日期范围
+        dates = pd.date_range(end=datetime.now(), periods=days, freq='B')
     
     # 生成模拟价格数据（使用随机游走模型）
+    actual_days = len(dates)
     np.random.seed(42)  # 设置随机种子，确保结果可重复
-    returns = np.random.normal(0, 0.02, days)
+    returns = np.random.normal(0, 0.02, actual_days)
     price = 100 * np.exp(np.cumsum(returns))
     
     # 生成开盘价、最高价、最低价（基于收盘价）
-    open_price = price * (1 + np.random.normal(0, 0.01, days))
-    high_price = np.maximum(price, open_price) * (1 + np.random.normal(0, 0.01, days))
-    low_price = np.minimum(price, open_price) * (1 - np.random.normal(0, 0.01, days))
+    open_price = price * (1 + np.random.normal(0, 0.01, actual_days))
+    high_price = np.maximum(price, open_price) * (1 + np.random.normal(0, 0.01, actual_days))
+    low_price = np.minimum(price, open_price) * (1 - np.random.normal(0, 0.01, actual_days))
     
     # 生成成交量（随机值）
-    volume = np.random.randint(100000, 10000000, days)
+    volume = np.random.randint(100000, 10000000, actual_days)
     
     # 创建DataFrame
     data = pd.DataFrame({

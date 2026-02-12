@@ -27,33 +27,37 @@ def get_stock_data(symbol="000001", start_date=None, end_date=None, days=365*5):
     start_date_formatted = datetime.strptime(start_date, "%Y%m%d").strftime("%Y-%m-%d")
     end_date_formatted = datetime.strptime(end_date, "%Y%m%d").strftime("%Y-%m-%d")
     
+    # 使用akshare获取A股日线数据
+    print(f"正在获取股票数据: {symbol}, 时间范围: {start_date} ({start_date_formatted}) 到 {end_date} ({end_date_formatted})")
+    
     # 确保股票代码格式正确，移除可能的后缀
     clean_symbol = symbol.replace('.ss', '').replace('.sz', '')
-    print(f"正在获取股票数据: {clean_symbol}, 时间范围: {start_date} ({start_date_formatted}) 到 {end_date} ({end_date_formatted})")
+    print(f"清理后的股票代码: {clean_symbol}")
     
-    # 验证日期范围，确保结束日期不晚于今天
-    today = datetime.now().strftime("%Y-%m-%d")
-    if end_date_formatted > today:
-        print(f"警告: 结束日期 {end_date_formatted} 晚于今天 {today}，将使用今天作为结束日期")
-        end_date_formatted = today
-    
+    # 尝试使用不同的方法获取数据
     try:
-        # 使用akshare获取A股日线数据
+        # 方法1：直接使用股票代码
+        print("尝试方法1：直接使用股票代码")
         data = ak.stock_zh_a_hist(symbol=clean_symbol, start_date=start_date_formatted, end_date=end_date_formatted, adjust="qfq")
-    except Exception as e:
-        print(f"首次尝试获取数据失败: {e}")
-        # 尝试使用不同的股票代码格式
+    except Exception as e1:
+        print(f"方法1失败: {e1}")
         try:
-            print(f"尝试使用 {clean_symbol}.ss 格式获取数据")
-            data = ak.stock_zh_a_hist(symbol=f"{clean_symbol}.ss", start_date=start_date_formatted, end_date=end_date_formatted, adjust="qfq")
+            # 方法2：使用akshare的股票搜索功能获取正确的代码
+            print("尝试方法2：使用股票搜索功能")
+            stock_info = ak.stock_zh_a_spot_em()
+            stock_code = stock_info[stock_info['代码'] == clean_symbol]['代码'].iloc[0]
+            print(f"通过搜索获取的股票代码: {stock_code}")
+            data = ak.stock_zh_a_hist(symbol=stock_code, start_date=start_date_formatted, end_date=end_date_formatted, adjust="qfq")
         except Exception as e2:
-            print(f"第二次尝试获取数据失败: {e2}")
+            print(f"方法2失败: {e2}")
             try:
-                print(f"尝试使用 {clean_symbol}.sz 格式获取数据")
-                data = ak.stock_zh_a_hist(symbol=f"{clean_symbol}.sz", start_date=start_date_formatted, end_date=end_date_formatted, adjust="qfq")
+                # 方法3：使用akshare的另一个API
+                print("尝试方法3：使用stock_zh_a_daily API")
+                data = ak.stock_zh_a_daily(symbol=clean_symbol, start_date=start_date_formatted, end_date=end_date_formatted, adjust="qfq")
             except Exception as e3:
-                print(f"第三次尝试获取数据失败: {e3}")
-                raise
+                print(f"方法3失败: {e3}")
+                # 所有方法都失败，重新抛出原始异常
+                raise Exception(f"获取股票数据失败，尝试了多种方法: {e1}, {e2}, {e3}")
     
     # 转换日期格式并设置为索引
     data['日期'] = pd.to_datetime(data['日期'])

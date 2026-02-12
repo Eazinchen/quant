@@ -17,6 +17,12 @@ function App() {
   const [error, setError] = useState(''); // 错误信息
   const [uploadedImage, setUploadedImage] = useState(null);
 
+  // 当策略、股票代码或日期范围变化时，清除回测结果
+  useEffect(() => {
+    setBacktestResults(null);
+    setError('');
+  }, [selectedStrategy, stockCode, startDate, endDate]);
+
   // 加载策略列表
   useEffect(() => {
     const loadStrategies = async () => {

@@ -44,7 +44,7 @@ def get_stock_data(symbol="000001", start_date=None, end_date=None, days=365*5):
     except Exception as e:
         print(f"获取股票数据失败: {e}")
         # 返回模拟数据
-        print("返回模拟数据")
+        print(f"返回模拟数据 (股票代码: {symbol})")
         # 计算模拟数据的天数
         if start_date and end_date:
             # 如果指定了开始和结束日期，计算实际天数
@@ -53,12 +53,12 @@ def get_stock_data(symbol="000001", start_date=None, end_date=None, days=365*5):
             sim_days = (end - start).days
             if sim_days < 1:
                 sim_days = 365  # 至少生成1年的数据
-            return generate_simulated_data(days=sim_days, start_date=start_date, end_date=end_date)
+            return generate_simulated_data(days=sim_days, start_date=start_date, end_date=end_date, symbol=symbol)
         else:
-            return generate_simulated_data(days=days)
+            return generate_simulated_data(days=days, symbol=symbol)
 
 
-def generate_simulated_data(days=365*5, start_date=None, end_date=None):
+def generate_simulated_data(days=365*5, start_date=None, end_date=None, symbol="000001"):
     """
     生成模拟股票数据
     
@@ -66,6 +66,7 @@ def generate_simulated_data(days=365*5, start_date=None, end_date=None):
     days: int, 数据天数，默认5年
     start_date: str, 开始日期，格式：YYYYMMDD
     end_date: str, 结束日期，格式：YYYYMMDD
+    symbol: str, 股票代码，默认"000001"
     
     返回:
     pandas DataFrame, 包含模拟的股票价格数据
@@ -82,8 +83,12 @@ def generate_simulated_data(days=365*5, start_date=None, end_date=None):
     
     # 生成模拟价格数据（使用随机游走模型）
     actual_days = len(dates)
-    np.random.seed(42)  # 设置随机种子，确保结果可重复
-    returns = np.random.normal(0, 0.02, actual_days)
+    # 根据股票代码设置不同的随机种子，确保不同股票有不同的模拟数据
+    seed = hash(symbol) % 10000
+    np.random.seed(seed)
+    # 根据股票代码调整收益率的均值，使不同股票有不同的表现
+    mean_return = 0.0001 * (int(symbol[-4:]) % 10)  # 使用股票代码的后四位来调整均值
+    returns = np.random.normal(mean_return, 0.02, actual_days)
     price = 100 * np.exp(np.cumsum(returns))
     
     # 生成开盘价、最高价、最低价（基于收盘价）

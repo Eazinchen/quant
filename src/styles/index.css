@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义WSJ风格样式 */
+@layer base {
+  body {
+    @apply font-sans text-wsj-dark bg-white;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+  .metric-value {
+    @apply font-serif text-2xl md:text-3xl font-bold;
+  }
+  .metric-label {
+    @apply font-sans text-sm text-gray-500;
+  }
+  .chart-container {
+    @apply bg-white border border-gray-200 rounded-sm;
+  }
+  .card {
+    @apply bg-white border border-gray-200 rounded-sm p-4 transition-shadow hover:shadow-sm;
+  }
+  .btn {
+    @apply px-4 py-2 bg-wsj-accent text-white rounded-sm hover:bg-blue-700 transition-colors;
+  }
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-200 text-wsj-dark rounded-sm hover:bg-gray-300 transition-colors;
+  }
+}

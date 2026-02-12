@@ -1,0 +1,42 @@
+# 依赖项
+node_modules/
+backend/__pycache__/
+__pycache__/
+
+# 环境文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 构建输出
+dist/
+build/
+
+# 测试输出
+coverage/
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# 回测结果文件
+backtest_results.csv
+
+# Python字节码
+*.pyc

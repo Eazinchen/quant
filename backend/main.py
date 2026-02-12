@@ -90,6 +90,8 @@ def run_backtest(request: BacktestRequest):
             print(f"股票数据前5行:\n{data.head()}")
         except Exception as e:
             print(f"获取股票数据失败: {e}")
+            # 注意：get_stock_data函数在获取真实数据失败时会返回模拟数据，所以这里不应该抛出异常
+            # 只有当get_stock_data函数本身出现严重错误时，才会进入这里
             raise HTTPException(status_code=500, detail=f"获取股票数据失败: {e}")
 
         # 根据策略ID选择策略

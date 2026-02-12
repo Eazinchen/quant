@@ -87,7 +87,17 @@ def generate_simulated_data(days=365*5, start_date=None, end_date=None, symbol="
     seed = hash(symbol) % 10000
     np.random.seed(seed)
     # 根据股票代码调整收益率的均值，使不同股票有不同的表现
-    mean_return = 0.0001 * (int(symbol[-4:]) % 10)  # 使用股票代码的后四位来调整均值
+    try:
+        # 使用股票代码的后四位来调整均值，如果股票代码长度小于4，则使用整个股票代码
+        if len(symbol) >= 4:
+            stock_suffix = symbol[-4:]
+        else:
+            stock_suffix = symbol
+        mean_return = 0.0001 * (int(stock_suffix) % 10)
+    except Exception as e:
+        print(f"计算股票代码调整值失败: {e}")
+        # 如果计算失败，使用默认值
+        mean_return = 0.0001
     returns = np.random.normal(mean_return, 0.02, actual_days)
     price = 100 * np.exp(np.cumsum(returns))
     
